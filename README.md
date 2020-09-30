@@ -21,3 +21,12 @@ When Qt5 is installed, follow the instructions below..
 1. `cd` to project root
 2. `bash buid.sh` in shell
 3. Run `./utext` in shell
+
+## Authors
+
+* **Anastasiia Krasnoselska** - [ankraol](https://github.com/ankraol)
+* **Andrii Bondarenko** - [PraydE](https://github.com/PraydE007)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
