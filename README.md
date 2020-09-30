@@ -11,10 +11,9 @@ See deployment for notes on how to deploy the project on a live system.
 
 ### TODO
 
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Qt_logo_2016.svg/1200px-Qt_logo_2016.svg.png" align="right" width="60" height="44">
 For installing app you need have installed Qt5 library.
 (If Qt5 isn't installed you can get it [HERE](https://www.qt.io)).
-
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Qt_logo_2016.svg/1200px-Qt_logo_2016.svg.png" align="right" width="60" height="44">
 
 When Qt5 is installed, follow the instructions below..
 
