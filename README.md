@@ -16,8 +16,6 @@ For installing app you need have installed Qt5 library.
 
 When Qt5 is installed, follow the instructions below..
 
-```shell
-1. `````cd````` to project root
+1. `cd` to project root
 2. `bash buid.sh` in shell
-3. Run `./utext`
-```
+3. Run `./utext` in shell
