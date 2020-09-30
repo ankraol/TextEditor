@@ -14,14 +14,7 @@ See deployment for notes on how to deploy the project on a live system.
 For installing app you need have installed Qt5 library.
 (If Qt5 isn't installed you can get it [HERE](https://www.qt.io)).
 
-<html>
-    <style>
-        img {
-            margin-left: 20%
-        }
-    </style>
-    <img src=https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Qt_logo_2016.svg/1200px-Qt_logo_2016.svg.png width="60" height="44">
-</html>
+<img align="center" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Qt_logo_2016.svg/1200px-Qt_logo_2016.svg.png" width="60" height="44">
 
 When Qt5 is installed, follow the instructions below..
 
