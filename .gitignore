@@ -1,3 +1,11 @@
+#Trash
+.idea
+.DS_Store
+
+#CLion
+cmake-build-debug
+build
+
 # Prerequisites
 *.d
 
