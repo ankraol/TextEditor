@@ -16,7 +16,11 @@ For installing app you need have installed Qt5 library.
 
 <html>
     <img src=https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Qt_logo_2016.svg/1200px-Qt_logo_2016.svg.png width="60" height="44">
-    <style>margin-left: 20%</style>
+    <style>
+        img {
+            margin-left: 20%
+        }
+    </style>
 </html>
 
 When Qt5 is installed, follow the instructions below..
