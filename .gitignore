@@ -1,10 +1,13 @@
-#Trash
+# Trash
 .idea
 .DS_Store
 
-#CLion
+# CLion
 cmake-build-debug
 build
+
+# VSCode
+.vscode
 
 # Prerequisites
 *.d

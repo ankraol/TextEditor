@@ -1,5 +1,5 @@
-echo 'export PATH="/Users/akrasnosel/.brew/opt/qt/bin:$PATH"' >> ~/.zshrc
-export LDFLAGS="-L/Users/akrasnosel/.brew/opt/qt/lib"
-export CPPFLAGS="-I/Users/akrasnosel/.brew/opt/qt/include"
-export PKG_CONFIG_PATH="/Users/akrasnosel/.brew/opt/qt/lib/pkgconfig"
+echo 'export PATH="/Users/${whoami}/.brew/opt/qt/bin:$PATH"' >> ~/.zshrc
+export LDFLAGS="-L/Users/${whoami}/.brew/opt/qt/lib"
+export CPPFLAGS="-I/Users/${whoami}/.brew/opt/qt/include"
+export PKG_CONFIG_PATH="/Users/${whoami}/.brew/opt/qt/lib/pkgconfig"
 cmake . -Bbuild -Wdev -Werror=dev && cmake --build ./build
