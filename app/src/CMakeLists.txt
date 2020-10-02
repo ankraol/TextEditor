@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(CPPS
     mainwindow.cpp
+        ide_mainwindow.cpp
 )
 
 add_compile_options(
