@@ -8,6 +8,7 @@
 #include <QResizeEvent>
 #include <QRect>
 #include <QPaintEvent>
+#include <QTextCharFormat>
 
 class CodeEditor : public QPlainTextEdit {
     Q_OBJECT
@@ -27,7 +28,8 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
-    QWidget *lineNumberArea;
+    QWidget* m_lineNumberArea;
+    QFont m_font;
 };
 
 #endif //UTEXT_CODEEDITOR_H

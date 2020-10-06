@@ -10,8 +10,8 @@ set(CMAKE_AUTOUIC ON)
 
 set(CPPS
     mainwindow.cpp
-        LineNumberArea.cpp
-        CodeEditor.cpp
+    LineNumberArea.cpp
+    CodeEditor.cpp
 )
 
 add_compile_options(
