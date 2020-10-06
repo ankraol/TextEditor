@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QFileInfo>
 
+class PlainTextEdit;
 class CodeEditor;
 
 namespace Ui {
