@@ -11,6 +11,8 @@
 #include <QTextCharFormat>
 #include <QLabel>
 
+// #include <QPoint>
+
 // MY INCS
 #include <QDebug>
 #include "mainwindow.h"

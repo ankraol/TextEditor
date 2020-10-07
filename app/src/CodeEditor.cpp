@@ -1,5 +1,6 @@
 #include "CodeEditor.h"
 #include "LineNumberArea.h"
+
 #include <ui_mainwindow.h>
 
 CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent), m_font("Monaco") {
