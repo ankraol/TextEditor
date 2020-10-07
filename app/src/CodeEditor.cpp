@@ -1,7 +1,8 @@
 #include "CodeEditor.h"
 #include "LineNumberArea.h"
+#include <ui_mainwindow.h>
 
-CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), m_font("Monaco") {
+CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent), m_font("Monaco") {
     m_lineNumberArea = new LineNumberArea(this);
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
@@ -11,11 +12,8 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), m_font("Monaco
     // Make a text monospaced
     m_font.setStyleHint(QFont::Monospace);
     setFont(m_font);
-    // QTextCharFormat charForm = currentCharFormat();
-    // charForm.setFontStyleHint(QFont::Monospace);
-    // setCurrentCharFormat(charForm);
 
-    updateLineNumberAreaWidth(0);
+    updateLineNumberAreaWidth();
     highlightCurrentLine();
 }
 
@@ -23,17 +21,16 @@ int CodeEditor::lineNumberAreaWidth() {
     int digits = 1;
     int max = qMax(1, blockCount());
 
-    while(max >= 10) {
+    while (max >= 10) {
         max /= 10;
         ++digits;
     }
 
     int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
-
     return space;
 }
 
-void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */) {
+void CodeEditor::updateLineNumberAreaWidth() {
     setViewportMargins(lineNumberAreaWidth(), 0, 0, 0);
 }
 
@@ -44,13 +41,13 @@ void CodeEditor::updateLineNumberArea(const QRect &rect, int dy) {
         m_lineNumberArea->update(0, rect.y(), m_lineNumberArea->width(), rect.height());
 
     if (rect.contains(viewport()->rect()))
-        updateLineNumberAreaWidth(0);
+        updateLineNumberAreaWidth();
 }
 
 void CodeEditor::resizeEvent(QResizeEvent *event) {
     QPlainTextEdit::resizeEvent(event);
-
     QRect cr = contentsRect();
+
     m_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
@@ -59,7 +56,6 @@ void CodeEditor::highlightCurrentLine() {
 
     if (!isReadOnly()) {
         QTextEdit::ExtraSelection selection;
-
         QColor lineColor = QColor(Qt::yellow).lighter(160);
 
         selection.format.setBackground(lineColor);
