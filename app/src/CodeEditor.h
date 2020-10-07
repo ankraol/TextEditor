@@ -9,6 +9,11 @@
 #include <QRect>
 #include <QPaintEvent>
 #include <QTextCharFormat>
+#include <QLabel>
+
+// MY INCS
+#include <QDebug>
+#include "mainwindow.h"
 
 class CodeEditor : public QPlainTextEdit {
     Q_OBJECT
@@ -23,7 +28,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
-    void updateLineNumberAreaWidth(int newBlockCount);
+    void updateLineNumberAreaWidth();
     void highlightCurrentLine();
     void updateLineNumberArea(const QRect &rect, int dy);
 
