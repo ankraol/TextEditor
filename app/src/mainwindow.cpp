@@ -1,74 +1,80 @@
 #include "mainwindow.h"
+#include "searchwindow.h"
 #include "CodeEditor.h"
 
 #include <ui_mainwindow.h>
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    m_ui(new Ui::MainWindow)
 {
+    m_searchWindow = new SearchWindow(this);
+    m_searchWindow->hide();
+
     m_codeEditor = new CodeEditor(this);
-    ui->setupUi(this);
-    ui->verticalLayout->addWidget(m_codeEditor);
+    m_ui->setupUi(this);
+    m_ui->verticalLayout->addWidget(m_codeEditor);
 
     setupImages();
 
     // MOVE SPLITTER TO LEFT
-    QList<int> currentSizes = ui->splitter->sizes();
+    QList<int> currentSizes = m_ui->splitter->sizes();
     currentSizes[0] = 0;
     currentSizes[1] = 1;
-    ui->splitter->setSizes(currentSizes);
+    m_ui->splitter->setSizes(currentSizes);
 
     connect(m_codeEditor, &CodeEditor::updateRequest, this, &MainWindow::setLinesText);
-    connect(ui->undoBtn, &QPushButton::clicked, this, &MainWindow::undoBtnFunc);
-    connect(ui->redoBtn, &QPushButton::clicked, this, &MainWindow::redoBtnFunc);
+    connect(m_ui->undoBtn, &QPushButton::clicked, m_codeEditor, &CodeEditor::undo);
+    connect(m_ui->redoBtn, &QPushButton::clicked, m_codeEditor, &CodeEditor::redo);
+    connect(m_ui->copyBtn, &QPushButton::clicked, m_codeEditor, &CodeEditor::copy);
+    connect(m_ui->cutBtn, &QPushButton::clicked, m_codeEditor, &CodeEditor::cut);
+    connect(m_ui->pasteBtn, &QPushButton::clicked, m_codeEditor, &CodeEditor::paste);
+    connect(m_ui->findBtn, &QPushButton::clicked, this, &MainWindow::findBtn);
 }
 
 void MainWindow::setLinesText() {
     int x = m_codeEditor->textCursor().positionInBlock() + 1;
 
-    ui->l_linesCount->setText(
+    m_ui->l_linesCount->setText(
         QString("Col ") + std::to_string(x).c_str() + /*":" + std::to_string(pos.ry()).c_str() +*/
         " | " + std::to_string(m_codeEditor->blockCount()).c_str() + " lines"
     );
 }
 
-void MainWindow::undoBtnFunc() {
-    m_codeEditor->undo();
-}
-
-void MainWindow::redoBtnFunc() {
-    m_codeEditor->redo();
+void MainWindow::findBtn() {
+    QString s = m_codeEditor->textCursor().selectedText();
+    m_searchWindow->setupStartParams(m_codeEditor, s);
+    m_searchWindow->show();
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+    delete m_ui;
 }
 
 void MainWindow::setupImages() {
     m_icSize.setWidth(36);
     m_icSize.setHeight(36);
 
-    ui->undoBtn->setIcon(m_undoIcon);
-    ui->undoBtn->setIconSize(m_icSize);
+    m_ui->undoBtn->setIcon(m_undoIcon);
+    m_ui->undoBtn->setIconSize(m_icSize);
 
-    ui->redoBtn->setIcon(m_redoIcon);
-    ui->redoBtn->setIconSize(m_icSize);
+    m_ui->redoBtn->setIcon(m_redoIcon);
+    m_ui->redoBtn->setIconSize(m_icSize);
 
-    ui->copyBtn->setIcon(m_copyIcon);
-    ui->copyBtn->setIconSize(m_icSize);
+    m_ui->copyBtn->setIcon(m_copyIcon);
+    m_ui->copyBtn->setIconSize(m_icSize);
 
-    ui->cutBtn->setIcon(m_cutIcon);
-    ui->cutBtn->setIconSize(m_icSize);
+    m_ui->cutBtn->setIcon(m_cutIcon);
+    m_ui->cutBtn->setIconSize(m_icSize);
 
-    ui->pasteBtn->setIcon(m_pasteIcon);
-    ui->pasteBtn->setIconSize(m_icSize);
+    m_ui->pasteBtn->setIcon(m_pasteIcon);
+    m_ui->pasteBtn->setIconSize(m_icSize);
 
-    ui->findBtn->setIcon(m_findIcon);
-    ui->findBtn->setIconSize(m_icSize);
+    m_ui->findBtn->setIcon(m_findIcon);
+    m_ui->findBtn->setIconSize(m_icSize);
 
-    ui->optionsBtn->setIcon(m_optionsIcon);
-    ui->optionsBtn->setIconSize(m_icSize);
+    m_ui->optionsBtn->setIcon(m_optionsIcon);
+    m_ui->optionsBtn->setIconSize(m_icSize);
 }
 
 void MainWindow::setFileSystem(const QString* sPath) {
@@ -85,10 +91,10 @@ void MainWindow::on_actionFile_triggered() {
     qDebug() << info.dir();
 
     dirmodel = new QFileSystemModel(this);
-    ui->treeView->setModel(dirmodel);
-    ui->treeView->setRootIndex(dirmodel->setRootPath(info.dir().absolutePath()));
+    m_ui->treeView->setModel(dirmodel);
+    m_ui->treeView->setRootIndex(dirmodel->setRootPath(info.dir().absolutePath()));
     for (int i = 1; i < dirmodel->columnCount(); ++i)
-        ui->treeView->hideColumn(i);
+        m_ui->treeView->hideColumn(i);
 }
 
 void MainWindow::on_actionDirectory_triggered() {
@@ -97,9 +103,9 @@ void MainWindow::on_actionDirectory_triggered() {
     //check directory name
     qDebug() << dirname;
     dirmodel = new QFileSystemModel(this);
-    ui->treeView->setModel(dirmodel);
-    ui->treeView->setRootIndex(dirmodel->setRootPath(dirname));
+    m_ui->treeView->setModel(dirmodel);
+    m_ui->treeView->setRootIndex(dirmodel->setRootPath(dirname));
     for (int i = 1; i < dirmodel->columnCount(); ++i)
-        ui->treeView->hideColumn(i);
+        m_ui->treeView->hideColumn(i);
     setLinesText();
 }

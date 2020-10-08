@@ -13,6 +13,7 @@
 
 // class PlainTextEdit;
 class CodeEditor;
+class SearchWindow;
 
 namespace Ui {
 class MainWindow;
@@ -30,8 +31,7 @@ public:
     void setupImages();
 
     // BUTTONS
-    void undoBtnFunc();
-    void redoBtnFunc();
+    void findBtn();
 
 public slots:
     void setFileSystem(const QString* sPath);
@@ -41,10 +41,11 @@ private slots:
     void on_actionDirectory_triggered(); //only opens working directory;
 
 private:
-    Ui::MainWindow* ui;
+    Ui::MainWindow* m_ui;
 
     QFileSystemModel* dirmodel;
     CodeEditor* m_codeEditor;
+    SearchWindow* m_searchWindow;
 
     QSize m_icSize;
     QIcon m_undoIcon{"app/res/images/undo.png"};
