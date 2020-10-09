@@ -14,6 +14,8 @@ CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent), m_font("Monaco
     m_font.setStyleHint(QFont::Monospace);
     setFont(m_font);
 
+    setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
+
     updateLineNumberAreaWidth();
     highlightCurrentLine();
 }
