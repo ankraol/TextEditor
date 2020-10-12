@@ -17,6 +17,10 @@ CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent), m_font("Monaco
     highlightCurrentLine();
 }
 
+QString CodeEditor::getText() {
+    return this->document()->toPlainText();
+}
+
 int CodeEditor::lineNumberAreaWidth() {
     int digits = 1;
     int max = qMax(1, blockCount());
@@ -90,4 +94,8 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
         bottom = top + qRound(blockBoundingRect(block).height());
         ++blockNumber;
     }
+}
+
+void CodeEditor::setTextFromFile(QString text) {
+    this->document()->setPlainText(text);
 }

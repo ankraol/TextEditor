@@ -12,6 +12,9 @@ set(CPPS
     mainwindow.cpp
     LineNumberArea.cpp
     CodeEditor.cpp
+        ClickableLabel.cpp
+        tabWidget.cpp
+        ProjectsView.cpp
 )
 
 add_compile_options(

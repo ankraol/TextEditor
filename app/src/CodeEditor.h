@@ -23,6 +23,8 @@ public:
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
+    void setTextFromFile(QString text); //to set text from new file;
+    QString getText(); //returns text
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
