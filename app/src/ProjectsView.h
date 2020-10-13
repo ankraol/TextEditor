@@ -12,15 +12,14 @@ class ProjectsView : public QWidget {
     Q_OBJECT
 
 public:
-    ProjectsView(QWidget* parent);
+    ProjectsView(QWidget* parent, QFileSystemModel* model, QString dirname);
 //    ~ProjectsView();
 
-    void addProject(QFileSystemModel* model, QString dirname, QString path);
-
 private:
+    QString m_dirName;
     QVBoxLayout* m_layout;
-    std::vector<QTreeView*> m_treeViewsVector;
-    std::vector<QFileSystemModel*> m_modelsVector;
+    QTreeView* m_treeView;
+    QFileSystemModel* m_model;
 };
 
 #endif //UTEXT_PROJECTSDIR_H

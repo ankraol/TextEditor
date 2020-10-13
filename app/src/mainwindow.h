@@ -9,7 +9,6 @@
 #include <QLabel>
 #include <QFileDialog>
 #include <QFileSystemModel>
-#include <QDebug>
 #include <QFileInfo>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -21,9 +20,13 @@
 #include <QTreeView>
 #include <QModelIndex>
 #include <QAbstractItemModel>
+#include <QDebug>
 
 #include <fstream>
 
+// class PlainTextEdit;
+class CodeEditor;
+class SearchWindow;
 class PlainTextEdit;
 class tabWidget;
 class ClickableLabel;
@@ -41,6 +44,10 @@ public:
     ~MainWindow();
 
     void setLinesText();
+    void setupImages();
+
+    // BUTTONS
+    void findBtn();
 
 private slots:
     void on_actionFile_triggered(); //should open working directory of a file and file;
@@ -61,7 +68,7 @@ protected:
     void openFile(QString fileName); //opens file and sets it to Text Editor
 
 private:
-    Ui::MainWindow* ui;
+    Ui::MainWindow* m_ui;
 
     //before file was opened or created
     QWidget *m_widget;
@@ -70,7 +77,8 @@ private:
     QPushButton *m_hintButton_OpenFile;
 
     //working tree sidebar
-    ProjectsView *m_projectsView;
+    QTabWidget* m_workTree_tabWidget{nullptr};
+    std::vector<ProjectsView*> m_projectsVector;
 
     //for work with file
     QString filePath;
@@ -78,6 +86,19 @@ private:
     QTabWidget* m_codeEditors_Tabs{nullptr};
     std::vector<tabWidget*> m_codeEditors_Vector; //each new tab editor is added here;
     QFileDialog* m_newFile_Dialog; //to create new file;
+    CodeEditor* m_codeEditor;
+    SearchWindow* m_searchWindow;
+
+    QPushButton* button;
+
+    QSize m_icSize;
+    QIcon m_undoIcon{"app/res/images/undo.png"};
+    QIcon m_redoIcon{"app/res/images/redo.png"};
+    QIcon m_copyIcon{"app/res/images/copy.png"};
+    QIcon m_cutIcon{"app/res/images/cut.png"};
+    QIcon m_pasteIcon{"app/res/images/paste.png"};
+    QIcon m_findIcon{"app/res/images/search.png"};
+    QIcon m_optionsIcon{"app/res/images/settings.png"};
 
     friend class CodeEditor;
 };

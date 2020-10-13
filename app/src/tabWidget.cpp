@@ -16,6 +16,10 @@ tabWidget::~tabWidget() {
     delete m_editor;
 }
 
-CodeEditor* tabWidget::getEditor() const {
+CodeEditor* tabWidget::getEditor() {
     return m_editor;
+}
+
+void tabWidget::setText(QString text) {
+    m_editor->setTextFromFile(text);
 }

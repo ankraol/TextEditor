@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(CPPS
     mainwindow.cpp
+    searchwindow.cpp
     LineNumberArea.cpp
     CodeEditor.cpp
         ClickableLabel.cpp

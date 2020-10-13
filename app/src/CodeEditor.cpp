@@ -1,5 +1,6 @@
 #include "CodeEditor.h"
 #include "LineNumberArea.h"
+
 #include <ui_mainwindow.h>
 
 CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent), m_font("Monaco") {
@@ -12,6 +13,8 @@ CodeEditor::CodeEditor(QWidget* parent) : QPlainTextEdit(parent), m_font("Monaco
     // Make a text monospaced
     m_font.setStyleHint(QFont::Monospace);
     setFont(m_font);
+
+    setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
     updateLineNumberAreaWidth();
     highlightCurrentLine();
@@ -97,5 +100,8 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 void CodeEditor::setTextFromFile(QString text) {
-    this->document()->setPlainText(text);
+    qDebug() << "Text is to be set";
+    qDebug() << text;
+        this->document()->setPlainText(text);
+        qDebug() << "Text is set";
 }
