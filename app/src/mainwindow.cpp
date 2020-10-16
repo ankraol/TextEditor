@@ -6,6 +6,7 @@
 #include "ProjectsView.h"
 #include "searchwindow.h"
 #include "CodeEditor.h"
+#include "ErrorMessageBox.h"
 
 
 MainWindow::MainWindow(QWidget* parent) :
@@ -13,19 +14,9 @@ MainWindow::MainWindow(QWidget* parent) :
     m_ui(new Ui::MainWindow)
 {
     m_ui->setupUi(this);
-
-
-    qDebug() << "1";
     m_searchWindow = new SearchWindow(this);
     m_searchWindow->hide();
-
-    qDebug() << "2";
-
-    qDebug() << "3";
-
     setupImages();
-
-    qDebug() << "4";
 
     //creating starting window
     m_widget = new QWidget;
@@ -33,13 +24,9 @@ MainWindow::MainWindow(QWidget* parent) :
     m_hintButton_CreateFile = new QPushButton ("Create New File  |  ⌘N");
     m_hintButton_OpenFile = new QPushButton ("Open File  |  ⌘O");
 
-    qDebug() << "5";
-
     //set up buttons
     m_hintButton_CreateFile->setFlat(true);
     m_hintButton_OpenFile->setFlat(true);
-
-    qDebug() << "6";
 
     this->setStyleSheet("QPushButton { color: black; font : 14pt 'PT Mono'; font-weight : bold;}\n"
                         "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
@@ -53,12 +40,10 @@ MainWindow::MainWindow(QWidget* parent) :
     m_layout->setAlignment(m_hintButton_CreateFile, Qt::AlignTop);
     m_widget->setLayout(m_layout);
     m_ui->splitter->addWidget(m_widget);
-//    m_ui->splitter->setSizes(QList<int>() << -1 << INT_MAX);
 
     //setting up connections
     m_hintButton_OpenFile->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     m_hintButton_CreateFile->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_N));
-    connect(m_ui->actionFile, &QAction::triggered, this, &MainWindow::on_actionFileOpened);
     connect(m_hintButton_OpenFile, &QPushButton::clicked, this, &MainWindow::on_actionFile_triggered);
     connect(m_ui->actionCreateFile_Project, &QAction::triggered, this, &MainWindow::createNewFile);
     connect(m_hintButton_CreateFile, &QPushButton::clicked, this, &MainWindow::createNewFile);
@@ -66,10 +51,18 @@ MainWindow::MainWindow(QWidget* parent) :
 
 }
 
+bool MainWindow::fileIsOpened(QString newFile) {
+    for (tabWidget* tab : m_codeEditors_Vector) {
+        if (m_codeEditors_Tabs->tabText(m_codeEditors_Tabs->indexOf(tab)) == newFile) {
+            m_codeEditors_Tabs->setCurrentWidget(tab);
+            return true;
+        }
+    }
+    return false;
+}
+
 void MainWindow::saveChanges() {
     QString file =  m_codeEditors_Tabs->tabText(m_codeEditors_Tabs->currentIndex());
-    qDebug() << file;
-
     QFile outputFile(file);
     outputFile.open(QIODevice::WriteOnly);
     QString text = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->getText();
@@ -79,9 +72,7 @@ void MainWindow::saveChanges() {
         outStream << text;
         outputFile.close();
     } else {
-        QMessageBox messageBox;
-        messageBox.critical(0, "Error", "An error has occurred!");
-        messageBox.setFixedSize(500, 200);
+        ErrorMessageBox(this, "An error occurred:", "Changes can't be saved.");
     }
 }
 
@@ -91,8 +82,7 @@ void MainWindow::createNewFile() {
     m_newFile_Dialog = new QFileDialog;
     m_newFile_Dialog->setModal(true);
     m_newFile_Dialog->setFileMode(QFileDialog::AnyFile);
-    QString fileName = m_newFile_Dialog->getSaveFileName(NULL, "Create New File","","");
-    qDebug() << fileName;
+    QString fileName = m_newFile_Dialog->getSaveFileName(NULL, "Create New File","Create New File","Create New File");
     openFile(fileName);
 }
 
@@ -100,28 +90,18 @@ void MainWindow::createNewFile() {
  * project/file is opened */
 tabWidget* MainWindow::addNewTab() {
     if (m_codeEditors_Tabs == nullptr) {
-        qDebug() << "Create new QTabWidget";
         m_codeEditors_Tabs = new QTabWidget(this);
         m_codeEditors_Tabs->setTabsClosable(true);
         m_widget->close(); //if there is delete on close flag it will eventually get deleted;
         m_ui->splitter->addWidget(m_codeEditors_Tabs);
-        m_codeEditors_Tabs->setFocus();
-        qDebug() << "Success on focus";
         m_codeEditors_Tabs->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
         //connections of m_codeEditors_Tabs
         connect(m_codeEditors_Tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeRequestedTab); //removes tab, when exit button pressed
         connect(m_ui->actionSave_File, &QAction::triggered, this, &MainWindow::saveChanges); //saves changes on current tab;
     }
-    qDebug() << "new tab must appear";
-//    tabWidget* newTab = new tabWidget(this);
     m_codeEditors_Vector.push_back((new tabWidget()));
     m_codeEditors_Tabs->addTab(m_codeEditors_Vector.back(), filePath);
-
-//    m_codeEditor = new CodeEditor(this);
-//    m_widget->close();
-//    m_ui->splitter->addWidget(m_codeEditor);
-
 
     //here connection of tab widgets should be written
     connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText); //connects line counter label to Text editor
@@ -132,7 +112,6 @@ tabWidget* MainWindow::addNewTab() {
     connect(m_ui->pasteBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::paste);
     show();
     return m_codeEditors_Vector.back();
-//    return nullptr;
 }
 
 /* closes requested tab */
@@ -145,13 +124,9 @@ void MainWindow::closeRequestedTab(int index) {
 /* reads from filepath and sets up the text of file
  * to the new tab code editor */
 void MainWindow::on_actionFileOpened() {
-//    tabWidget* widget = addNewTab();
     addNewTab();
-    qDebug() << "Widget is added";
-
     std::ifstream fileStream;
     fileStream.open(filePath.toUtf8().constData(), std::ios::in|std::ios::binary|std::ios::ate);
-
     char* memblock;
     std::streampos size;
 
@@ -161,13 +136,10 @@ void MainWindow::on_actionFileOpened() {
         fileStream.seekg (0, std::ios::beg);
         fileStream.read (memblock, size);
         fileStream.close();
-
         m_codeEditors_Vector.back()->setText(QString::fromUtf8(memblock));
-//        m_codeEditors_Vector.back()->getEditor()->setTextFromFile(QString::fromUtf8(memblock));
-        qDebug() << "Text is set";
         delete [] memblock;
     } else {
-        std::cout << "Failed to open a file.\n";
+        ErrorMessageBox(this, "An error occurred:", "Failed to open a file.");
     }
 }
 
@@ -182,7 +154,6 @@ void MainWindow::TestPrint() {
 void MainWindow::setLinesText() {
     CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
      int x = current->textCursor().positionInBlock() + 1;
-//    int x = m_codeEditor->textCursor().positionInBlock() + 1;
 
     m_ui->l_linesCount->setText(
         QString("Col ") + std::to_string(x).c_str() + /*":" + std::to_string(pos.ry()).c_str() +*/
@@ -230,77 +201,211 @@ void MainWindow::setupImages() {
     m_ui->optionsBtn->setIconSize(m_icSize);
 }
 
-//bool MainWindow::doubleClick_onTreeView(const QModelIndex &index) {
-//    qDebug() << "Double clicked";
-//
-//    const QAbstractItemModel * model = index.model();
-//    qDebug() << index.data();
-//    qDebug() << model->data(model->index(0, 0), Qt::DisplayRole);
-//    return true;
-//}
+//opens double-clicked file
+bool MainWindow::doubleClick_onTreeView(QString path) {
+    QFileInfo info(path);
+
+    if (info.isFile() && !fileIsOpened(path)) {
+        filePath = path;
+        on_actionFileOpened();
+    }
+    return true;
+}
+
+void MainWindow::closeRequestedProject(int index) {
+    if (m_workTree_tabWidget->count() > 1) {
+        m_workTree_tabWidget->currentWidget()->disconnect();
+        m_workTree_tabWidget->removeTab(index);
+    }
+}
+
+bool MainWindow::dirIsOpened(QString dirName) {
+    for (ProjectsView* tab : m_projectsVector) {
+        if (m_workTree_tabWidget->tabText(m_workTree_tabWidget->indexOf(tab)) == dirName)
+            return true;
+    }
+    return false;
+}
 
 /* calls on_actionFileOpened func to fill in the Text Editor field */
 void MainWindow::openFile(QString fileName) {
 
-    if (fileName != "") {
+    if (fileName != "" && !fileIsOpened(fileName)) {
         QFileInfo info(fileName);
         filePath = fileName;
         dirmodel = new QFileSystemModel(this);
-//        m_projectsView->addProject(dirmodel, projectName, info2.dir().absolutePath());
+
         if (m_workTree_tabWidget == nullptr) {
             m_workTree_tabWidget = new QTabWidget;
             m_workTree_tabWidget->setTabsClosable(true);
-            qDebug() << m_ui->splitter->count();
+            m_workTree_tabWidget->setTabPosition(QTabWidget::West);
             m_ui->splitter->addWidget(m_workTree_tabWidget);
-//            m_ui->splitter->addWidget(m_widget);
-            qDebug() << m_ui->splitter->count();
-//            m_workTree_tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+            connect(m_workTree_tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeRequestedProject);
         }
-        ProjectsView* m_widget = new ProjectsView (this, dirmodel, info.dir().absolutePath());
-        m_workTree_tabWidget->addTab(m_widget, info.dir().dirName());
-        m_projectsVector.push_back(m_widget);
+        if (!dirIsOpened(info.dir().dirName())) {
+            m_projectsVector.push_back(new ProjectsView(this, dirmodel, info.dir().absolutePath()));
+            m_workTree_tabWidget->addTab(m_projectsVector.back(), info.dir().dirName());
+            connect(m_projectsVector.back(), &ProjectsView::file_chosen, this, &MainWindow::doubleClick_onTreeView);
+            connect(m_projectsVector.back(), &ProjectsView::newFile_triggered, this, &MainWindow::on_newFile);
+            connect(m_projectsVector.back(), &ProjectsView::newDir_triggered, this, &MainWindow::on_newDir);
+            connect(m_projectsVector.back(), &ProjectsView::rename_triggered, this, &MainWindow::on_rename);
+            connect(m_projectsVector.back(), &ProjectsView::delete_triggered, this, &MainWindow::on_delete);
+        }
         on_actionFileOpened();
-        qDebug() << "on_actionFileOpened success";
-
-
-//        m_ui->splitter->setSizes()
-        // MOVE SPLITTER TO LEFT
-//        QList<int> currentSizes = m_ui->splitter->sizes();
-//        currentSizes[0] = 0;
-//        currentSizes[1] = 1;
-//        m_ui->splitter->setSizes(currentSizes);
     }
 }
 
 /* creates QFileDialog to choose file to open */
 void MainWindow::on_actionFile_triggered() {
     QString filename = QFileDialog::getOpenFileName(this, "Open a File", QDir::home().absolutePath());
-//    m_widget->hide();
+
     openFile(filename);
-    qDebug() << "File is opened";
+}
+
+void MainWindow::on_newDir(const QString &path) {
+    QFileInfo info(path);
+
+    if (info.isFile()) {
+        QString location = info.dir().absolutePath();
+
+        bool ok;
+        QString fileName = QInputDialog::getText(this, tr("New Directory"), tr("Directory name: "), QLineEdit::Normal,
+                                                 tr("NewDir"), &ok);
+        if (ok && !fileName.isEmpty()) {
+            QString newDir = location + tr("/") + fileName;
+            QDir dir = QDir::root();
+            dir.mkpath(newDir);
+        }
+    }
+    if (info.isDir()) {
+        bool ok;
+        QString fileName = QInputDialog::getText(this, tr("New Directory"), tr("Directory name: "), QLineEdit::Normal,
+                                                 tr("NewDir"), &ok);
+        if (ok && !fileName.isEmpty()) {
+            QString newDir = path + tr("/") + fileName;
+            QDir dir = QDir::root();
+            dir.mkpath(newDir);
+        }
+    }
+}
+
+void MainWindow::on_newFile(const QString& path) {
+    QFileInfo info(path);
+
+    if (info.isFile()) {
+        QString location = info.dir().absolutePath();
+
+        bool ok;
+        QString fileName = QInputDialog::getText(this, tr("New File"), tr("File name: "), QLineEdit::Normal,
+                                                 tr("NewFile.txt"), &ok);
+        if (ok && !fileName.isEmpty()) {
+            QString newFile = location + tr("/") + fileName;
+            QFile file(newFile);
+            file.open(QIODevice::WriteOnly);
+            file.close();
+        }
+    }
+    if (info.isDir()) {
+        bool ok;
+        QString fileName = QInputDialog::getText(this, tr("New File"), tr("File name: "), QLineEdit::Normal,
+                                                 tr("NewFile.txt"), &ok);
+        if (ok && !fileName.isEmpty()) {
+            QString newFile = path + tr("/") + fileName;
+            QFile file(newFile);
+            file.open(QIODevice::WriteOnly);
+            file.close();
+        }
+    }
+}
+
+void MainWindow::on_rename(const QString &path) {
+    QFileInfo info(path);
+
+    if (info.isFile()) {
+        bool ok;
+        QFile file(path);
+        QString newName = QInputDialog::getText(this, tr("Rename File"), tr("New file name: "), QLineEdit::Normal,
+                                                info.fileName(), &ok);
+        QString path = info.dir().absolutePath() + tr("/") + newName;
+        if (ok && !newName.isEmpty()) {
+            if (file.rename(path))
+                ErrorMessageBox(this, "Failed to rename file:", "This file can't be renamed.");
+        }
+    }
+    if (info.isDir()) {
+        bool ok;
+        QDir dir(path);
+        QString newName = QInputDialog::getText(this, tr("Rename Directory"), tr("New directory name: "), QLineEdit::Normal,
+                                                dir.dirName(), &ok);
+        QString path = info.dir().absolutePath() + tr("/") + newName;
+        if (ok && !newName.isEmpty()) {
+            if (!dir.rename(dir.path(), path))
+                ErrorMessageBox(this, "Failed to rename directory:", "This directory can't be renamed.");
+        }
+    }
+}
+
+void MainWindow::on_delete(const QString &path) {
+    QFileInfo info(path);
+
+    if (info.isFile()) {
+        QFile file(path);
+        QMessageBox msg_box;
+        msg_box.setText("Confirm:");
+        msg_box.setInformativeText("Delete file \"" + info.fileName() + "\"?");
+        msg_box.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msg_box.setDefaultButton(QMessageBox::Cancel);
+        int resp = msg_box.exec();
+
+        if (resp == QMessageBox::Ok) {
+            if (!file.remove())
+                ErrorMessageBox(this, "Failed to delete file:", "This file can't be deleted.");
+        }
+    }
+    if (info.isDir()) {
+        QDir dir(path);
+        QMessageBox msg_box;
+        msg_box.setText("Confirm:");
+        msg_box.setInformativeText("Delete directory \"" + info.fileName() + "\" with all of its content?");
+        msg_box.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msg_box.setDefaultButton(QMessageBox::Cancel);
+
+        int resp = msg_box.exec();
+
+        if (resp == QMessageBox::Ok) {
+            if (!dir.removeRecursively())
+                ErrorMessageBox(this, "Failed to delete directory:", "This directory can't be deleted.");
+        }
+    }
 }
 
 /* creates QFileDialog to choose directory and set up working tree sidebar */
 void MainWindow::on_actionDirectory_triggered() {
     QString dirname = QFileDialog::getExistingDirectory(this, "", QDir::home().absolutePath(), QFileDialog::ShowDirsOnly
                                                             | QFileDialog::DontResolveSymlinks);
-//    m_widget->hide();
-    //check directory name
-    qDebug() << dirname;
+    if (dirname != "") {
+        //gets location
+        dirmodel = new QFileSystemModel(this);
+        if (m_workTree_tabWidget == nullptr) {
+            m_workTree_tabWidget = new QTabWidget;
+            m_workTree_tabWidget->setTabsClosable(true);
+            m_workTree_tabWidget->setTabPosition(QTabWidget::West);
+            m_ui->splitter->addWidget(m_workTree_tabWidget);
+            connect(m_workTree_tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeRequestedProject);
+        }
+        QFileInfo info(dirname);
 
-    //gets location
-    qDebug() << m_ui->splitter->count();
-    dirmodel = new QFileSystemModel(this);
-    if (m_workTree_tabWidget == nullptr) {
-        m_workTree_tabWidget = new QTabWidget;
-        m_workTree_tabWidget->setTabsClosable(true);
-        m_ui->splitter->addWidget(m_workTree_tabWidget);
-//        m_workTree_tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        if (!dirIsOpened(info.fileName())) {
+            m_projectsVector.push_back(new ProjectsView(this, dirmodel, info.absoluteFilePath()));
+            m_workTree_tabWidget->addTab(m_projectsVector.back(), info.fileName());
+            connect(m_projectsVector.back(), &ProjectsView::file_chosen, this, &MainWindow::doubleClick_onTreeView);
+            connect(m_projectsVector.back(), &ProjectsView::newFile_triggered, this, &MainWindow::on_newFile);
+            connect(m_projectsVector.back(), &ProjectsView::newDir_triggered, this, &MainWindow::on_newDir);
+            connect(m_projectsVector.back(), &ProjectsView::rename_triggered, this, &MainWindow::on_rename);
+            connect(m_projectsVector.back(), &ProjectsView::delete_triggered, this, &MainWindow::on_delete);
+            setLinesText();
+        } else {
+            ErrorMessageBox msgBox(this, "Can't open directory:", "Directory has already been opened");
+        }
     }
-    qDebug() << m_ui->splitter->count();
-    QFileInfo info(dirname);
-    ProjectsView* m_widget = new ProjectsView (this, dirmodel, info.dir().absolutePath());
-    m_workTree_tabWidget->addTab(m_widget, info.dir().dirName());
-    m_projectsVector.push_back(m_widget);
-    setLinesText();
 }

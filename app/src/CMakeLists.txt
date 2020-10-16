@@ -16,6 +16,7 @@ set(CPPS
         ClickableLabel.cpp
         tabWidget.cpp
         ProjectsView.cpp
+        ErrorMessageBox.cpp
 )
 
 add_compile_options(

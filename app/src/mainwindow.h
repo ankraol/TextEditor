@@ -21,6 +21,8 @@
 #include <QModelIndex>
 #include <QAbstractItemModel>
 #include <QDebug>
+#include <QInputDialog>
+#include <QMessageBox>
 
 #include <fstream>
 
@@ -58,13 +60,21 @@ private slots:
     void createNewFile(); //opens new dialog and creates new file;
     void saveChanges(); //saves all changes done to file;
 
-//    bool doubleClick_onTreeView(const QModelIndex &index); //opens item if it is a file on double click;
+    bool doubleClick_onTreeView(QString path); //opens item if it is a file on double click;
+    void closeRequestedProject(int index); //closes requested project and all related code editors;
 
     void TestPrint(); //to test signal slot connection;
 
+    //slots for projects area
+    void on_newFile(const QString& path); //create new directory from work tree;
+    void on_newDir(const QString& path); //create new directory from work tree;
+    void on_rename(const QString& path); //rename file/directory from work tree;
+    void on_delete(const QString& path); //delete file/directory from work tree;
+
 protected:
     tabWidget* addNewTab(); //adds new tab to QTabWidget
-    bool fileIsOpened(); //checks whether the chosen file has already been opened
+    bool fileIsOpened(QString newFile); //checks whether the chosen file has already been opened
+    bool dirIsOpened(QString dirName); //checks whether the chosen directory has already been opened
     void openFile(QString fileName); //opens file and sets it to Text Editor
 
 private:
