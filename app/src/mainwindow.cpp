@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "optionswindow.h"
 #include <ui_mainwindow.h>
 
 #include "tabWidget.h"
@@ -9,20 +10,23 @@
 #include "ErrorMessageBox.h"
 
 
-MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent),
+      m_ui(new Ui::MainWindow) {
     m_ui->setupUi(this);
     m_searchWindow = new SearchWindow(this);
     m_searchWindow->hide();
+
+    m_optionsWindow = new OptionsWindow(this);
+    m_optionsWindow->hide();
+    // setupWrap();
     setupImages();
 
     //creating starting window
     m_widget = new QWidget;
     m_layout = new QVBoxLayout;
-    m_hintButton_CreateFile = new QPushButton ("Create New File  |  ⌘N");
-    m_hintButton_OpenFile = new QPushButton ("Open File  |  ⌘O");
+    m_hintButton_CreateFile = new QPushButton("Create New File  |  ⌘N");
+    m_hintButton_OpenFile = new QPushButton("Open File  |  ⌘O");
 
     //set up buttons
     m_hintButton_CreateFile->setFlat(true);
@@ -48,7 +52,28 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(m_ui->actionCreateFile_Project, &QAction::triggered, this, &MainWindow::createNewFile);
     connect(m_hintButton_CreateFile, &QPushButton::clicked, this, &MainWindow::createNewFile);
     connect(m_ui->findBtn, &QPushButton::clicked, this, &MainWindow::findBtn);
+    connect(m_ui->printBtn, &QPushButton::clicked, this, &MainWindow::printerDialog);
+    connect(m_ui->zoomInBtn, &QPushButton::clicked, this, &MainWindow::zoomIn);
+    connect(m_ui->zoomOutBtn, &QPushButton::clicked, this, &MainWindow::zoomOut);
+    connect(m_ui->optionsBtn, &QPushButton::clicked, m_optionsWindow, &QWidget::show);
 
+    // OPTIONS
+    connect(m_optionsWindow->getWrapBox(), &QCheckBox::clicked, this, &MainWindow::setupWrap);
+
+    // HOTKEYS CONNECT
+    m_searchShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
+    QObject::connect(m_searchShortcut, &QShortcut::activated, m_ui->findBtn, &QPushButton::click);
+    m_zoomOutShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
+    QObject::connect(m_zoomOutShortcut, &QShortcut::activated, this, &MainWindow::zoomOut);
+    m_zoomInShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
+    QObject::connect(m_zoomInShortcut, &QShortcut::activated, this, &MainWindow::zoomIn);
+
+    show();
+}
+
+MainWindow::~MainWindow() {
+    delete m_searchShortcut;
+    delete m_ui;
 }
 
 bool MainWindow::fileIsOpened(QString newFile) {
@@ -103,7 +128,6 @@ tabWidget* MainWindow::addNewTab() {
     m_codeEditors_Vector.push_back((new tabWidget()));
     m_codeEditors_Tabs->addTab(m_codeEditors_Vector.back(), filePath);
 
-    //here connection of tab widgets should be written
     connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText); //connects line counter label to Text editor
     connect(m_ui->undoBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::undo);
     connect(m_ui->redoBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::redo);
@@ -162,7 +186,7 @@ void MainWindow::setLinesText() {
 }
 
 void MainWindow::findBtn() {
-    if (m_codeEditors_Tabs != nullptr) {
+    if (m_codeEditors_Tabs->count() != 0) {
         CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
 
         QString s = current->textCursor().selectedText();
@@ -171,9 +195,6 @@ void MainWindow::findBtn() {
     }
 }
 
-MainWindow::~MainWindow() {
-    delete m_ui;
-}
 
 void MainWindow::setupImages() {
     m_icSize.setWidth(36);
@@ -199,6 +220,15 @@ void MainWindow::setupImages() {
 
     m_ui->optionsBtn->setIcon(m_optionsIcon);
     m_ui->optionsBtn->setIconSize(m_icSize);
+
+    m_ui->printBtn->setIcon(m_printIcon);
+    m_ui->printBtn->setIconSize(m_icSize);
+
+    m_ui->zoomInBtn->setIcon(m_zoomInIcon);
+    m_ui->zoomInBtn->setIconSize(m_icSize);
+
+    m_ui->zoomOutBtn->setIcon(m_zoomOutIcon);
+    m_ui->zoomOutBtn->setIconSize(m_icSize);
 }
 
 //opens double-clicked file
@@ -252,6 +282,34 @@ void MainWindow::openFile(QString fileName) {
             connect(m_projectsVector.back(), &ProjectsView::delete_triggered, this, &MainWindow::on_delete);
         }
         on_actionFileOpened();
+    }
+}
+
+void MainWindow::printerDialog() {
+    if (m_codeEditors_Tabs->count() != 0) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        QPrinter printer;
+        QPrintDialog dialog(&printer, this);
+
+        dialog.setWindowTitle("Print Document");
+        if (current->textCursor().hasSelection())
+            dialog.addEnabledOption(QAbstractPrintDialog::PrintSelection);
+        if (dialog.exec() == QDialog::Accepted)
+            current->print(&printer);
+    }
+}
+
+void MainWindow::zoomIn() {
+    if (m_codeEditors_Tabs != nullptr) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        current->zoomIn();
+    }
+}
+
+void MainWindow::zoomOut() {
+    if (m_codeEditors_Tabs != nullptr) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        current->zoomOut();
     }
 }
 
@@ -406,6 +464,27 @@ void MainWindow::on_actionDirectory_triggered() {
             setLinesText();
         } else {
             ErrorMessageBox msgBox(this, "Can't open directory:", "Directory has already been opened");
+        }
+    }
+}
+
+// =============================
+// ========= OPTIONS ===========
+// =============================
+
+void MainWindow::setupWrap() {
+    if (m_codeEditors_Tabs->count() != 0) {
+        QList<CodeEditor*> cErs = m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>();
+        QCheckBox* wrapBox = m_optionsWindow->getWrapBox();
+
+        if (wrapBox->isChecked()) {
+            for (auto it = cErs.begin(); it != cErs.end(); it++) {
+                (*it)->setLineWrapMode(QPlainTextEdit::LineWrapMode::WidgetWidth);
+            }
+        } else {
+            for (auto it = cErs.begin(); it != cErs.end(); it++) {
+                (*it)->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
+            }
         }
     }
 }

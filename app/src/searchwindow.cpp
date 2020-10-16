@@ -3,10 +3,9 @@
 
 #include <ui_searchwindow.h>
 
-SearchWindow::SearchWindow(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::SearchWindow)
-{
+SearchWindow::SearchWindow(QWidget *parent)
+    : QDialog(parent),
+      m_ui(new Ui::SearchWindow) {
     m_ui->setupUi(this);
 
     connect(m_ui->pushButton, &QPushButton::clicked, this, &SearchWindow::searchBtn);

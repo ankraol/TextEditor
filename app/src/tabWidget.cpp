@@ -1,6 +1,7 @@
 #include "tabWidget.h"
 
-tabWidget::tabWidget(QWidget* parent) : QWidget(parent) {
+tabWidget::tabWidget(QWidget* parent)
+    : QWidget(parent) {
     m_editor = new CodeEditor(this);
     m_layout = new QVBoxLayout;
 

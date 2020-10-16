@@ -20,6 +20,14 @@
 #include <QTreeView>
 #include <QModelIndex>
 #include <QAbstractItemModel>
+#include <QShortcut>
+#include <QCheckBox>
+#include <QList>
+
+#include <QPrinter>
+#include <QPrintDialog>
+
+// WARN
 #include <QDebug>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -33,6 +41,8 @@ class PlainTextEdit;
 class tabWidget;
 class ClickableLabel;
 class ProjectsView;
+
+class OptionsWindow;
 
 namespace Ui {
 class MainWindow;
@@ -56,6 +66,9 @@ private slots:
     void on_actionDirectory_triggered(); //only opens working directory;
     void on_actionFileOpened(); //to set text into tab widget;
 
+    void printerDialog();
+    void zoomIn();
+    void zoomOut();
     void closeRequestedTab(int index); //closes requested tab;
     void createNewFile(); //opens new dialog and creates new file;
     void saveChanges(); //saves all changes done to file;
@@ -70,6 +83,8 @@ private slots:
     void on_newDir(const QString& path); //create new directory from work tree;
     void on_rename(const QString& path); //rename file/directory from work tree;
     void on_delete(const QString& path); //delete file/directory from work tree;
+    void setupWrap();
+
 
 protected:
     tabWidget* addNewTab(); //adds new tab to QTabWidget
@@ -98,6 +113,7 @@ private:
     QFileDialog* m_newFile_Dialog; //to create new file;
     CodeEditor* m_codeEditor;
     SearchWindow* m_searchWindow;
+    OptionsWindow* m_optionsWindow;
 
     QPushButton* button;
 
@@ -109,6 +125,14 @@ private:
     QIcon m_pasteIcon{"app/res/images/paste.png"};
     QIcon m_findIcon{"app/res/images/search.png"};
     QIcon m_optionsIcon{"app/res/images/settings.png"};
+    QIcon m_printIcon{"app/res/images/printer.png"};
+    QIcon m_zoomInIcon{"app/res/images/zoom-in.png"};
+    QIcon m_zoomOutIcon{"app/res/images/zoom-out.png"};
+
+    // HOTKEYS
+    QShortcut* m_searchShortcut{nullptr};
+    QShortcut* m_zoomInShortcut{nullptr};
+    QShortcut* m_zoomOutShortcut{nullptr};
 
     friend class CodeEditor;
 };

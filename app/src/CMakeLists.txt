@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(CPPS
     mainwindow.cpp
+    optionswindow.cpp
     searchwindow.cpp
     LineNumberArea.cpp
     CodeEditor.cpp
@@ -17,6 +18,7 @@ set(CPPS
         tabWidget.cpp
         ProjectsView.cpp
         ErrorMessageBox.cpp
+    Highlighter.cpp
 )
 
 add_compile_options(
@@ -32,6 +34,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 ## QT INCLUDE
 find_package(Qt5Widgets REQUIRED)
+find_package(Qt5PrintSupport REQUIRED)
 include_directories(${Qt5Widgets_INCLUDES})
 add_definitions(${Qt5Widgets_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -39,3 +42,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 add_library(src ${CPPS})
 
 target_link_libraries(src ${Qt5Widgets_LIBRARIES})
+target_link_libraries(src ${Qt5PrintSupport_LIBRARIES})
