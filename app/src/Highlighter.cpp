@@ -39,10 +39,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         QStringLiteral("\\bswitch\\b"), QStringLiteral("\\bbreak\\b"), QStringLiteral("\\breturn\\b")
     };
 
-    m_variableFormat.setForeground(m_blueBrush);
-    rule.m_pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z0-9_]+\\b"));
-    rule.m_format = m_variableFormat;
-    m_highlightingRules.append(rule);
+    setupVariable(rule);
 
     for (const QString &pattern : keywordPatterns) {
         rule.m_pattern = QRegularExpression(pattern);
@@ -56,37 +53,11 @@ Highlighter::Highlighter(QTextDocument *parent)
         m_highlightingRules.append(rule);
     }
 
-    m_classFormat.setFontWeight(QFont::Bold);
-    m_classFormat.setForeground(Qt::darkGreen);
-    rule.m_pattern = QRegularExpression(QStringLiteral("\\bQ[A-Za-z]+\\b"));
-    rule.m_format = m_classFormat;
-    m_highlightingRules.append(rule);
-
-    m_quotationFormat.setFontWeight(QFont::Bold);
-    m_quotationFormat.setForeground(m_brownBrush);
-    rule.m_pattern = QRegularExpression(QStringLiteral("\".*\""));
-    rule.m_format = m_quotationFormat;
-    m_highlightingRules.append(rule);
-
-    // functionFormat.setFontItalic(true);
-    m_functionFormat.setForeground(m_yellowBrush);
-    rule.m_pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z0-9_]+(?=\\()"));
-    rule.m_format = m_functionFormat;
-    m_highlightingRules.append(rule);
-
-    m_singleLineCommentFormat.setForeground(Qt::darkGray);
-    rule.m_pattern = QRegularExpression(QStringLiteral("//[^\n]*"));
-    rule.m_format = m_singleLineCommentFormat;
-    m_highlightingRules.append(rule);
-
-    m_multiLineCommentFormat.setForeground(Qt::darkGray);
-    m_commentStartExpression = QRegularExpression(QStringLiteral("/\\*"));
-    m_commentEndExpression = QRegularExpression(QStringLiteral("\\*/"));
-
-    m_preprocFormat.setForeground(Qt::darkMagenta);
-    rule.m_pattern = QRegularExpression(QStringLiteral("#[A-Za-z]+"));
-    rule.m_format = m_preprocFormat;
-    m_highlightingRules.append(rule);
+    setupClass(rule);
+    setupQuotation(rule);
+    setupFunction(rule);
+    setupComments(rule);
+    setupPreprocessor(rule);
 }
 
 void Highlighter::highlightBlock(const QString &text) {
@@ -117,7 +88,50 @@ void Highlighter::highlightBlock(const QString &text) {
     }
 }
 
-// struct Highlighter::HighlightingRule {
-//     QRegularExpression pattern;
-//     QTextCharFormat format;
-// };
+void Highlighter::setupVariable(HighlightingRule& rule) {
+    m_variableFormat.setForeground(m_blueBrush);
+    rule.m_pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z0-9_]+\\b"));
+    rule.m_format = m_variableFormat;
+    m_highlightingRules.append(rule);
+}
+
+void Highlighter::setupClass(HighlightingRule& rule) {
+    m_classFormat.setFontWeight(QFont::Bold);
+    m_classFormat.setForeground(Qt::darkGreen);
+    rule.m_pattern = QRegularExpression(QStringLiteral("\\bQ[A-Za-z]+\\b"));
+    rule.m_format = m_classFormat;
+    m_highlightingRules.append(rule);
+}
+
+void Highlighter::setupQuotation(HighlightingRule& rule) {
+    m_quotationFormat.setFontWeight(QFont::Bold);
+    m_quotationFormat.setForeground(m_brownBrush);
+    rule.m_pattern = QRegularExpression(QStringLiteral("\".*\""));
+    rule.m_format = m_quotationFormat;
+    m_highlightingRules.append(rule);
+}
+
+void Highlighter::setupFunction(HighlightingRule& rule) {
+    m_functionFormat.setForeground(m_yellowBrush);
+    rule.m_pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z0-9_]+(?=\\()"));
+    rule.m_format = m_functionFormat;
+    m_highlightingRules.append(rule);
+}
+
+void Highlighter::setupComments(HighlightingRule& rule) {
+    m_singleLineCommentFormat.setForeground(Qt::darkGray);
+    rule.m_pattern = QRegularExpression(QStringLiteral("//[^\n]*"));
+    rule.m_format = m_singleLineCommentFormat;
+    m_highlightingRules.append(rule);
+
+    m_multiLineCommentFormat.setForeground(Qt::darkGray);
+    m_commentStartExpression = QRegularExpression(QStringLiteral("/\\*"));
+    m_commentEndExpression = QRegularExpression(QStringLiteral("\\*/"));
+}
+
+void Highlighter::setupPreprocessor(HighlightingRule& rule) {
+    m_preprocFormat.setForeground(Qt::darkMagenta);
+    rule.m_pattern = QRegularExpression(QStringLiteral("#[A-Za-z]+"));
+    rule.m_format = m_preprocFormat;
+    m_highlightingRules.append(rule);
+}

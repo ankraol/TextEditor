@@ -76,8 +76,6 @@ private slots:
     bool doubleClick_onTreeView(QString path); //opens item if it is a file on double click;
     void closeRequestedProject(int index); //closes requested project and all related code editors;
 
-    void TestPrint(); //to test signal slot connection;
-
     //slots for projects area
     void on_newFile(const QString& path); //create new directory from work tree;
     void on_newDir(const QString& path); //create new directory from work tree;
