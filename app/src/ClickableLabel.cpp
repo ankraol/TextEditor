@@ -1,6 +1,7 @@
 #include "ClickableLabel.h"
 
-ClickableLabel::ClickableLabel(QString text, QWidget *parent, Qt::AlignmentFlag flag) : QLabel(parent){
+ClickableLabel::ClickableLabel(QString text, QWidget *parent, Qt::AlignmentFlag flag)
+    : QLabel(parent) {
     setMouseTracking(true);
     setContentsMargins(10,10,10,10);
     setAlignment(Qt::AlignHCenter | flag);

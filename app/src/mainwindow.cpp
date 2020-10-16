@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "optionswindow.h"
 #include <ui_mainwindow.h>
 
 #include "tabWidget.h"
@@ -8,16 +9,19 @@
 #include "CodeEditor.h"
 
 
-MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent),
+      m_ui(new Ui::MainWindow) {
     m_ui->setupUi(this);
 
 
     qDebug() << "1";
     m_searchWindow = new SearchWindow(this);
     m_searchWindow->hide();
+
+    m_optionsWindow = new OptionsWindow(this);
+    m_optionsWindow->hide();
+    // setupWrap();
 
     qDebug() << "2";
 
@@ -30,8 +34,8 @@ MainWindow::MainWindow(QWidget* parent) :
     //creating starting window
     m_widget = new QWidget;
     m_layout = new QVBoxLayout;
-    m_hintButton_CreateFile = new QPushButton ("Create New File  |  ⌘N");
-    m_hintButton_OpenFile = new QPushButton ("Open File  |  ⌘O");
+    m_hintButton_CreateFile = new QPushButton("Create New File  |  ⌘N");
+    m_hintButton_OpenFile = new QPushButton("Open File  |  ⌘O");
 
     qDebug() << "5";
 
@@ -41,9 +45,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
     qDebug() << "6";
 
-    this->setStyleSheet("QPushButton { color: black; font : 14pt 'PT Mono'; font-weight : bold;}\n"
-                        "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
-                        "QPushButton:pressed { background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}");
+    this->setStyleSheet(
+        "QPushButton { color: black; font : 14pt 'PT Mono'; font-weight : bold;}\n"
+        "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
+        "QPushButton:pressed { background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}"
+    );
 
 
     //adding buttons
@@ -63,7 +69,28 @@ MainWindow::MainWindow(QWidget* parent) :
     connect(m_ui->actionCreateFile_Project, &QAction::triggered, this, &MainWindow::createNewFile);
     connect(m_hintButton_CreateFile, &QPushButton::clicked, this, &MainWindow::createNewFile);
     connect(m_ui->findBtn, &QPushButton::clicked, this, &MainWindow::findBtn);
+    connect(m_ui->printBtn, &QPushButton::clicked, this, &MainWindow::printerDialog);
+    connect(m_ui->zoomInBtn, &QPushButton::clicked, this, &MainWindow::zoomIn);
+    connect(m_ui->zoomOutBtn, &QPushButton::clicked, this, &MainWindow::zoomOut);
+    connect(m_ui->optionsBtn, &QPushButton::clicked, m_optionsWindow, &QWidget::show);
 
+    // OPTIONS
+    connect(m_optionsWindow->getWrapBox(), &QCheckBox::clicked, this, &MainWindow::setupWrap);
+
+    // HOTKEYS CONNECT
+    m_searchShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
+    QObject::connect(m_searchShortcut, &QShortcut::activated, m_ui->findBtn, &QPushButton::click);
+    m_zoomOutShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
+    QObject::connect(m_zoomOutShortcut, &QShortcut::activated, this, &MainWindow::zoomOut);
+    m_zoomInShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
+    QObject::connect(m_zoomInShortcut, &QShortcut::activated, this, &MainWindow::zoomIn);
+
+    show();
+}
+
+MainWindow::~MainWindow() {
+    delete m_searchShortcut;
+    delete m_ui;
 }
 
 void MainWindow::saveChanges() {
@@ -121,7 +148,6 @@ tabWidget* MainWindow::addNewTab() {
 //    m_codeEditor = new CodeEditor(this);
 //    m_widget->close();
 //    m_ui->splitter->addWidget(m_codeEditor);
-
 
     //here connection of tab widgets should be written
     connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText); //connects line counter label to Text editor
@@ -200,9 +226,6 @@ void MainWindow::findBtn() {
     }
 }
 
-MainWindow::~MainWindow() {
-    delete m_ui;
-}
 
 void MainWindow::setupImages() {
     m_icSize.setWidth(36);
@@ -228,6 +251,15 @@ void MainWindow::setupImages() {
 
     m_ui->optionsBtn->setIcon(m_optionsIcon);
     m_ui->optionsBtn->setIconSize(m_icSize);
+
+    m_ui->printBtn->setIcon(m_printIcon);
+    m_ui->printBtn->setIconSize(m_icSize);
+
+    m_ui->zoomInBtn->setIcon(m_zoomInIcon);
+    m_ui->zoomInBtn->setIconSize(m_icSize);
+
+    m_ui->zoomOutBtn->setIcon(m_zoomOutIcon);
+    m_ui->zoomOutBtn->setIconSize(m_icSize);
 }
 
 //bool MainWindow::doubleClick_onTreeView(const QModelIndex &index) {
@@ -272,6 +304,34 @@ void MainWindow::openFile(QString fileName) {
     }
 }
 
+void MainWindow::printerDialog() {
+    if (m_codeEditors_Tabs != nullptr) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        QPrinter printer;
+        QPrintDialog dialog(&printer, this);
+
+        dialog.setWindowTitle("Print Document");
+        if (current->textCursor().hasSelection())
+            dialog.addEnabledOption(QAbstractPrintDialog::PrintSelection);
+        if (dialog.exec() == QDialog::Accepted)
+            current->print(&printer);
+    }
+}
+
+void MainWindow::zoomIn() {
+    if (m_codeEditors_Tabs != nullptr) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        current->zoomIn();
+    }
+}
+
+void MainWindow::zoomOut() {
+    if (m_codeEditors_Tabs != nullptr) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        current->zoomOut();
+    }
+}
+
 /* creates QFileDialog to choose file to open */
 void MainWindow::on_actionFile_triggered() {
     QString filename = QFileDialog::getOpenFileName(this, "Open a File", QDir::home().absolutePath());
@@ -282,8 +342,12 @@ void MainWindow::on_actionFile_triggered() {
 
 /* creates QFileDialog to choose directory and set up working tree sidebar */
 void MainWindow::on_actionDirectory_triggered() {
-    QString dirname = QFileDialog::getExistingDirectory(this, "", QDir::home().absolutePath(), QFileDialog::ShowDirsOnly
-                                                            | QFileDialog::DontResolveSymlinks);
+    QString dirname = QFileDialog::getExistingDirectory(
+        this,
+        "",
+        QDir::home().absolutePath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+    );
 //    m_widget->hide();
     //check directory name
     qDebug() << dirname;
@@ -303,4 +367,25 @@ void MainWindow::on_actionDirectory_triggered() {
     m_workTree_tabWidget->addTab(m_widget, info.dir().dirName());
     m_projectsVector.push_back(m_widget);
     setLinesText();
+}
+
+// =============================
+// ========= OPTIONS ===========
+// =============================
+
+void MainWindow::setupWrap() {
+    if (m_codeEditors_Tabs != nullptr) {
+        QList<CodeEditor*> cErs = m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>();
+        QCheckBox* wrapBox = m_optionsWindow->getWrapBox();
+
+        if (wrapBox->isChecked()) {
+            for (auto it = cErs.begin(); it != cErs.end(); it++) {
+                (*it)->setLineWrapMode(QPlainTextEdit::LineWrapMode::WidgetWidth);
+            }
+        } else {
+            for (auto it = cErs.begin(); it != cErs.end(); it++) {
+                (*it)->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
+            }
+        }
+    }
 }

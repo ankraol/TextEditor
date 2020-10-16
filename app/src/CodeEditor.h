@@ -17,6 +17,8 @@
 #include <QDebug>
 #include "mainwindow.h"
 
+class Highlighter;
+
 class CodeEditor : public QPlainTextEdit {
     Q_OBJECT
 
@@ -26,6 +28,8 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
     void setTextFromFile(QString text); //to set text from new file;
+    // void moveBlockUp();
+    // void moveBlockDown();
     QString getText(); //returns text
 
 protected:
@@ -37,6 +41,7 @@ private slots:
     void updateLineNumberArea(const QRect &rect, int dy);
 
 private:
+    Highlighter* m_highlighter;
     QWidget* m_lineNumberArea;
     QFont m_font;
 };
