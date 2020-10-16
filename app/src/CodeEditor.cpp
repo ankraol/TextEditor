@@ -104,8 +104,5 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
 }
 
 void CodeEditor::setTextFromFile(QString text) {
-    qDebug() << "Text is to be set";
-    qDebug() << text;
     this->document()->setPlainText(text);
-    qDebug() << "Text is set";
 }

@@ -129,17 +129,33 @@ tabWidget* MainWindow::addNewTab() {
     m_codeEditors_Tabs->addTab(m_codeEditors_Vector.back(), filePath);
 
     connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText); //connects line counter label to Text editor
-    connect(m_ui->undoBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::undo);
-    connect(m_ui->redoBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::redo);
+    connect(m_ui->undoBtn, &QPushButton::clicked, this, &MainWindow::on_undo);
+    connect(m_ui->redoBtn, &QPushButton::clicked, this, &MainWindow::on_redo);
     connect(m_ui->copyBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::copy);
     connect(m_ui->cutBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::cut);
-    connect(m_ui->pasteBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::paste);
+    connect(m_ui->pasteBtn, &QPushButton::clicked, this, &MainWindow::on_paste);
     show();
     return m_codeEditors_Vector.back();
 }
 
+void MainWindow::on_paste() {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0)
+        (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->paste();
+}
+
+void MainWindow::on_redo() {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0)
+        (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->redo();
+}
+
+void MainWindow::on_undo() {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0)
+        (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->undo();
+}
+
 /* closes requested tab */
 void MainWindow::closeRequestedTab(int index) {
+    (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->disconnect();
     m_codeEditors_Tabs->currentWidget()->disconnect();
     m_codeEditors_Tabs->removeTab(index);
     m_ui->l_linesCount->setText("Lines: 0");
@@ -186,7 +202,7 @@ void MainWindow::setLinesText() {
 }
 
 void MainWindow::findBtn() {
-    if (m_codeEditors_Tabs->count() != 0) {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
         CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
 
         QString s = current->textCursor().selectedText();
@@ -286,7 +302,7 @@ void MainWindow::openFile(QString fileName) {
 }
 
 void MainWindow::printerDialog() {
-    if (m_codeEditors_Tabs->count() != 0) {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
         CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
         QPrinter printer;
         QPrintDialog dialog(&printer, this);
@@ -300,14 +316,14 @@ void MainWindow::printerDialog() {
 }
 
 void MainWindow::zoomIn() {
-    if (m_codeEditors_Tabs != nullptr) {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
         CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
         current->zoomIn();
     }
 }
 
 void MainWindow::zoomOut() {
-    if (m_codeEditors_Tabs != nullptr) {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
         CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
         current->zoomOut();
     }
@@ -473,7 +489,7 @@ void MainWindow::on_actionDirectory_triggered() {
 // =============================
 
 void MainWindow::setupWrap() {
-    if (m_codeEditors_Tabs->count() != 0) {
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
         QList<CodeEditor*> cErs = m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>();
         QCheckBox* wrapBox = m_optionsWindow->getWrapBox();
 

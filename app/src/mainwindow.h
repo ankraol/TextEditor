@@ -85,6 +85,11 @@ private slots:
     void on_delete(const QString& path); //delete file/directory from work tree;
     void setupWrap();
 
+    //slots for code editor
+    void on_paste();
+    void on_redo();
+    void on_undo();
+
 
 protected:
     tabWidget* addNewTab(); //adds new tab to QTabWidget
