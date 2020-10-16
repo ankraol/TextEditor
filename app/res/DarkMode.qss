@@ -1,0 +1,42 @@
+QMainWindow {
+    background: #464444;
+}
+
+QPushButton {
+    background: transparent;
+}
+
+QPushButton#CreateFile_Button:hover {
+    background: transparent;
+    color: #a9a9a9;
+    font : 16pt 'PT Mono';
+    font-weight : bold;
+}
+
+QPushButton#CreateFile_Button:pressed {
+    background: transparent;
+    color: #a9a9a9;
+    font : 14pt 'PT Mono';
+    font-weight : bold;
+}
+
+QTabWidget::pane {
+    background: #3b3c43;
+}
+
+QTreeView {
+    background: #3f3f3f;
+}
+
+QHeaderView {
+    background: #464444;
+}
+
+QTreeView::item:selected:!active {
+    background: #464444;
+}
+
+QPlainTextEdit {
+    background: #3f3f3f;
+}
+

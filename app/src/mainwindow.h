@@ -139,6 +139,9 @@ private:
     QShortcut* m_zoomInShortcut{nullptr};
     QShortcut* m_zoomOutShortcut{nullptr};
 
+    QFile m_qss_dark{"app/res/DarkMode.qss"};
+
+
     friend class CodeEditor;
 };
 

@@ -32,9 +32,12 @@ MainWindow::MainWindow(QWidget* parent)
     m_hintButton_CreateFile->setFlat(true);
     m_hintButton_OpenFile->setFlat(true);
 
-    this->setStyleSheet("QPushButton { color: black; font : 14pt 'PT Mono'; font-weight : bold;}\n"
-                        "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
-                        "QPushButton:pressed { background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}");
+    m_hintButton_CreateFile->setObjectName("CreateFile_Button");
+    m_hintButton_OpenFile->setObjectName("CreateFile_Button");
+
+//    this->setStyleSheet("QPushButton { color: black; font : 14pt 'PT Mono'; font-weight : bold;}\n"
+//                        "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
+//                        "QPushButton:pressed { background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}");
 
 
     //adding buttons
@@ -68,6 +71,8 @@ MainWindow::MainWindow(QWidget* parent)
     m_zoomInShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
     QObject::connect(m_zoomInShortcut, &QShortcut::activated, this, &MainWindow::zoomIn);
 
+    m_qss_dark.open(QFile::ReadOnly);
+    this->setStyleSheet(m_qss_dark.readAll());
     show();
 }
 
