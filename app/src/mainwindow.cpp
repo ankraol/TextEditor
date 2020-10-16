@@ -14,21 +14,21 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
       m_ui(new Ui::MainWindow) {
     m_ui->setupUi(this);
+
     m_searchWindow = new SearchWindow(this);
     m_searchWindow->hide();
 
     m_optionsWindow = new OptionsWindow(this);
     m_optionsWindow->hide();
-    // setupWrap();
+
     setupImages();
 
-    //creating starting window
     m_widget = new QWidget;
     m_layout = new QVBoxLayout;
     m_hintButton_CreateFile = new QPushButton("Create New File  |  ⌘N");
     m_hintButton_OpenFile = new QPushButton("Open File  |  ⌘O");
 
-    //set up buttons
+    // Setup buttons
     m_hintButton_CreateFile->setFlat(true);
     m_hintButton_OpenFile->setFlat(true);
 
@@ -39,8 +39,7 @@ MainWindow::MainWindow(QWidget* parent)
 //                        "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
 //                        "QPushButton:pressed { background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}");
 
-
-    //adding buttons
+    // Adding buttons
     m_layout->addWidget(m_hintButton_OpenFile, QSizePolicy::Maximum);
     m_layout->addWidget(m_hintButton_CreateFile, QSizePolicy::Maximum);
     m_layout->setAlignment(m_hintButton_OpenFile, Qt::AlignBottom);
@@ -48,7 +47,7 @@ MainWindow::MainWindow(QWidget* parent)
     m_widget->setLayout(m_layout);
     m_ui->splitter->addWidget(m_widget);
 
-    //setting up connections
+    // Setup connections
     m_hintButton_OpenFile->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_O));
     m_hintButton_CreateFile->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_N));
     connect(m_hintButton_OpenFile, &QPushButton::clicked, this, &MainWindow::on_actionFile_triggered);
@@ -60,16 +59,16 @@ MainWindow::MainWindow(QWidget* parent)
     connect(m_ui->zoomOutBtn, &QPushButton::clicked, this, &MainWindow::zoomOut);
     connect(m_ui->optionsBtn, &QPushButton::clicked, m_optionsWindow, &QWidget::show);
 
-    // OPTIONS
+    // Options
     connect(m_optionsWindow->getWrapBox(), &QCheckBox::clicked, this, &MainWindow::setupWrap);
 
-    // HOTKEYS CONNECT
+    // Hotkeys
     m_searchShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
-    QObject::connect(m_searchShortcut, &QShortcut::activated, m_ui->findBtn, &QPushButton::click);
+    connect(m_searchShortcut, &QShortcut::activated, m_ui->findBtn, &QPushButton::click);
     m_zoomOutShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
-    QObject::connect(m_zoomOutShortcut, &QShortcut::activated, this, &MainWindow::zoomOut);
+    connect(m_zoomOutShortcut, &QShortcut::activated, this, &MainWindow::zoomOut);
     m_zoomInShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
-    QObject::connect(m_zoomInShortcut, &QShortcut::activated, this, &MainWindow::zoomIn);
+    connect(m_zoomInShortcut, &QShortcut::activated, this, &MainWindow::zoomIn);
 
     m_qss_dark.open(QFile::ReadOnly);
     this->setStyleSheet(m_qss_dark.readAll());
@@ -77,7 +76,15 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::~MainWindow() {
+    // Shortcuts
     delete m_searchShortcut;
+    delete m_zoomOutShortcut;
+    delete m_zoomInShortcut;
+
+    // Windows
+    delete m_optionsWindow;
+    delete m_searchWindow;
+
     delete m_ui;
 }
 
@@ -92,7 +99,7 @@ bool MainWindow::fileIsOpened(QString newFile) {
 }
 
 void MainWindow::saveChanges() {
-    QString file =  m_codeEditors_Tabs->tabText(m_codeEditors_Tabs->currentIndex());
+    QString file = m_codeEditors_Tabs->tabText(m_codeEditors_Tabs->currentIndex());
     QFile outputFile(file);
     outputFile.open(QIODevice::WriteOnly);
     QString text = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->getText();
@@ -101,13 +108,10 @@ void MainWindow::saveChanges() {
         QTextStream outStream(&outputFile);
         outStream << text;
         outputFile.close();
-    } else {
+    } else
         ErrorMessageBox(this, "An error occurred:", "Changes can't be saved.");
-    }
 }
 
-/* creates QDialog to select location and name of a new file
- * and creates it)) */
 void MainWindow::createNewFile() {
     m_newFile_Dialog = new QFileDialog;
     m_newFile_Dialog->setModal(true);
@@ -116,29 +120,29 @@ void MainWindow::createNewFile() {
     openFile(fileName);
 }
 
-/* adds new Tab to the QTabWidget every time new
- * project/file is opened */
 tabWidget* MainWindow::addNewTab() {
     if (m_codeEditors_Tabs == nullptr) {
         m_codeEditors_Tabs = new QTabWidget(this);
         m_codeEditors_Tabs->setTabsClosable(true);
-        m_widget->close(); //if there is delete on close flag it will eventually get deleted;
+        m_widget->close();
         m_ui->splitter->addWidget(m_codeEditors_Tabs);
         m_codeEditors_Tabs->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-        //connections of m_codeEditors_Tabs
-        connect(m_codeEditors_Tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeRequestedTab); //removes tab, when exit button pressed
-        connect(m_ui->actionSave_File, &QAction::triggered, this, &MainWindow::saveChanges); //saves changes on current tab;
+        // Connections of m_codeEditors_Tabs
+        connect(m_codeEditors_Tabs, &QTabWidget::tabCloseRequested, this, &MainWindow::closeRequestedTab);
+        connect(m_ui->actionSave_File, &QAction::triggered, this, &MainWindow::saveChanges);
     }
+
     m_codeEditors_Vector.push_back((new tabWidget()));
     m_codeEditors_Tabs->addTab(m_codeEditors_Vector.back(), filePath);
 
-    connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText); //connects line counter label to Text editor
+    connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText);
     connect(m_ui->undoBtn, &QPushButton::clicked, this, &MainWindow::on_undo);
     connect(m_ui->redoBtn, &QPushButton::clicked, this, &MainWindow::on_redo);
     connect(m_ui->copyBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::copy);
     connect(m_ui->cutBtn, &QPushButton::clicked, m_codeEditors_Vector.back()->getEditor(), &CodeEditor::cut);
     connect(m_ui->pasteBtn, &QPushButton::clicked, this, &MainWindow::on_paste);
+
     show();
     return m_codeEditors_Vector.back();
 }
@@ -158,7 +162,6 @@ void MainWindow::on_undo() {
         (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->undo();
 }
 
-/* closes requested tab */
 void MainWindow::closeRequestedTab(int index) {
     (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor *>().begin())->disconnect();
     m_codeEditors_Tabs->currentWidget()->disconnect();
@@ -166,44 +169,36 @@ void MainWindow::closeRequestedTab(int index) {
     m_ui->l_linesCount->setText("Lines: 0");
 }
 
-/* reads from filepath and sets up the text of file
- * to the new tab code editor */
 void MainWindow::on_actionFileOpened() {
     addNewTab();
+
     std::ifstream fileStream;
     fileStream.open(filePath.toUtf8().constData(), std::ios::in|std::ios::binary|std::ios::ate);
     char* memblock;
     std::streampos size;
 
-    if(fileStream.is_open()) {
+    if (fileStream.is_open()) {
         size = fileStream.tellg();
-        memblock = new char [size];
-        fileStream.seekg (0, std::ios::beg);
-        fileStream.read (memblock, size);
+        memblock = new char[size];
+        fileStream.seekg(0, std::ios::beg);
+        fileStream.read(memblock, size);
         fileStream.close();
         m_codeEditors_Vector.back()->setText(QString::fromUtf8(memblock));
-        delete [] memblock;
-    } else {
+        delete[] memblock;
+    } else
         ErrorMessageBox(this, "An error occurred:", "Failed to open a file.");
-    }
 }
 
-
-/* just to test connection */
-void MainWindow::TestPrint() {
-    qDebug() << "Clicked";
-}
-
-
-/* sets up lines count of file to lines label */
 void MainWindow::setLinesText() {
-    CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
-     int x = current->textCursor().positionInBlock() + 1;
+    if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
+        CodeEditor* current = (*m_codeEditors_Tabs->currentWidget()->findChildren<CodeEditor*>().begin());
+        int x = current->textCursor().positionInBlock() + 1;
 
-    m_ui->l_linesCount->setText(
-        QString("Col ") + std::to_string(x).c_str() + /*":" + std::to_string(pos.ry()).c_str() +*/
-        " | " + std::to_string(current->blockCount()).c_str() + " lines"
-    );
+        m_ui->l_linesCount->setText(
+            QString("Col ") + std::to_string(x).c_str() +
+            " | " + std::to_string(current->blockCount()).c_str() + " lines"
+        );
+    }
 }
 
 void MainWindow::findBtn() {
@@ -215,7 +210,6 @@ void MainWindow::findBtn() {
         m_searchWindow->show();
     }
 }
-
 
 void MainWindow::setupImages() {
     m_icSize.setWidth(36);
@@ -252,7 +246,6 @@ void MainWindow::setupImages() {
     m_ui->zoomOutBtn->setIconSize(m_icSize);
 }
 
-//opens double-clicked file
 bool MainWindow::doubleClick_onTreeView(QString path) {
     QFileInfo info(path);
 
@@ -278,9 +271,7 @@ bool MainWindow::dirIsOpened(QString dirName) {
     return false;
 }
 
-/* calls on_actionFileOpened func to fill in the Text Editor field */
 void MainWindow::openFile(QString fileName) {
-
     if (fileName != "" && !fileIsOpened(fileName)) {
         QFileInfo info(fileName);
         filePath = fileName;
@@ -334,7 +325,6 @@ void MainWindow::zoomOut() {
     }
 }
 
-/* creates QFileDialog to choose file to open */
 void MainWindow::on_actionFile_triggered() {
     QString filename = QFileDialog::getOpenFileName(this, "Open a File", QDir::home().absolutePath());
 
@@ -356,7 +346,7 @@ void MainWindow::on_newDir(const QString &path) {
             dir.mkpath(newDir);
         }
     }
-    if (info.isDir()) {
+    else if (info.isDir()) {
         bool ok;
         QString fileName = QInputDialog::getText(this, tr("New Directory"), tr("Directory name: "), QLineEdit::Normal,
                                                  tr("NewDir"), &ok);
@@ -384,7 +374,7 @@ void MainWindow::on_newFile(const QString& path) {
             file.close();
         }
     }
-    if (info.isDir()) {
+    else if (info.isDir()) {
         bool ok;
         QString fileName = QInputDialog::getText(this, tr("New File"), tr("File name: "), QLineEdit::Normal,
                                                  tr("NewFile.txt"), &ok);
@@ -411,7 +401,7 @@ void MainWindow::on_rename(const QString &path) {
                 ErrorMessageBox(this, "Failed to rename file:", "This file can't be renamed.");
         }
     }
-    if (info.isDir()) {
+    else if (info.isDir()) {
         bool ok;
         QDir dir(path);
         QString newName = QInputDialog::getText(this, tr("Rename Directory"), tr("New directory name: "), QLineEdit::Normal,
@@ -441,7 +431,7 @@ void MainWindow::on_delete(const QString &path) {
                 ErrorMessageBox(this, "Failed to delete file:", "This file can't be deleted.");
         }
     }
-    if (info.isDir()) {
+    else if (info.isDir()) {
         QDir dir(path);
         QMessageBox msg_box;
         msg_box.setText("Confirm:");
@@ -458,12 +448,15 @@ void MainWindow::on_delete(const QString &path) {
     }
 }
 
-/* creates QFileDialog to choose directory and set up working tree sidebar */
 void MainWindow::on_actionDirectory_triggered() {
-    QString dirname = QFileDialog::getExistingDirectory(this, "", QDir::home().absolutePath(), QFileDialog::ShowDirsOnly
-                                                            | QFileDialog::DontResolveSymlinks);
+    QString dirname = QFileDialog::getExistingDirectory(
+        this,
+        "",
+        QDir::home().absolutePath(),
+        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+    );
+
     if (dirname != "") {
-        //gets location
         dirmodel = new QFileSystemModel(this);
         if (m_workTree_tabWidget == nullptr) {
             m_workTree_tabWidget = new QTabWidget;
@@ -472,8 +465,8 @@ void MainWindow::on_actionDirectory_triggered() {
             m_ui->splitter->addWidget(m_workTree_tabWidget);
             connect(m_workTree_tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeRequestedProject);
         }
-        QFileInfo info(dirname);
 
+        QFileInfo info(dirname);
         if (!dirIsOpened(info.fileName())) {
             m_projectsVector.push_back(new ProjectsView(this, dirmodel, info.absoluteFilePath()));
             m_workTree_tabWidget->addTab(m_projectsVector.back(), info.fileName());
@@ -483,15 +476,10 @@ void MainWindow::on_actionDirectory_triggered() {
             connect(m_projectsVector.back(), &ProjectsView::rename_triggered, this, &MainWindow::on_rename);
             connect(m_projectsVector.back(), &ProjectsView::delete_triggered, this, &MainWindow::on_delete);
             setLinesText();
-        } else {
+        } else
             ErrorMessageBox msgBox(this, "Can't open directory:", "Directory has already been opened");
-        }
     }
 }
-
-// =============================
-// ========= OPTIONS ===========
-// =============================
 
 void MainWindow::setupWrap() {
     if (m_codeEditors_Tabs != nullptr && m_codeEditors_Tabs->count() != 0) {
