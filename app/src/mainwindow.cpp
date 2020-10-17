@@ -448,6 +448,7 @@ void MainWindow::on_actionDirectory_triggered() {
     if (dirname != "") {
         dirmodel = new QFileSystemModel(this);
         if (m_workTree_tabWidget == nullptr) {
+            m_widget->close();
             m_workTree_tabWidget = new QTabWidget;
             m_workTree_tabWidget->setTabsClosable(true);
             m_workTree_tabWidget->setTabPosition(QTabWidget::West);
