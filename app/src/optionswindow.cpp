@@ -12,3 +12,4 @@ OptionsWindow::~OptionsWindow() {
 }
 
 QCheckBox* OptionsWindow::getWrapBox() const { return m_ui->wrapBox; }
+QCheckBox* OptionsWindow::getDarkBox() const { return m_ui->darkBox; }

@@ -11,10 +11,6 @@
 #include <QTextCharFormat>
 #include <QLabel>
 
-// #include <QPoint>
-
-// MY INCS
-#include <QDebug>
 #include "mainwindow.h"
 
 class Highlighter;
@@ -27,10 +23,8 @@ public:
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
-    void setTextFromFile(QString text); //to set text from new file;
-    // void moveBlockUp();
-    // void moveBlockDown();
-    QString getText(); //returns text
+    void setTextFromFile(QString text);
+    QString getText();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

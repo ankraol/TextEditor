@@ -11,9 +11,6 @@ CodeEditor::CodeEditor(QWidget* parent)
     m_highlighter = new Highlighter(document());
 
     m_lineNumberArea->setObjectName("lineNumberArea");
-//    m_lineNumberArea->setAttribute(Qt::WA_StyledBackground, true);
-//    m_lineNumberArea->setAutoFillBackground(true);
-//    m_lineNumberArea->setStyleSheet("LineNumberArea { background-color: green; }");
 
     connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
     connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
@@ -23,7 +20,7 @@ CodeEditor::CodeEditor(QWidget* parent)
     m_font.setStyleHint(QFont::Monospace);
     setFont(m_font);
 
-    setLineWrapMode(QPlainTextEdit::LineWrapMode::WidgetWidth);
+    setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
     updateLineNumberAreaWidth();
     highlightCurrentLine();

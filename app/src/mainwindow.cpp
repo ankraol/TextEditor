@@ -3,12 +3,10 @@
 #include <ui_mainwindow.h>
 
 #include "tabWidget.h"
-#include "ClickableLabel.h"
 #include "ProjectsView.h"
 #include "searchwindow.h"
 #include "CodeEditor.h"
 #include "ErrorMessageBox.h"
-
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent),
@@ -57,6 +55,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Options
     connect(m_optionsWindow->getWrapBox(), &QCheckBox::clicked, this, &MainWindow::setupWrap);
+    connect(m_optionsWindow->getDarkBox(), &QCheckBox::clicked, this, &MainWindow::setupDark);
 
     // Hotkeys
     m_searchShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
@@ -66,8 +65,6 @@ MainWindow::MainWindow(QWidget* parent)
     m_zoomInShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
     connect(m_zoomInShortcut, &QShortcut::activated, this, &MainWindow::zoomIn);
 
-    m_qss_dark.open(QFile::ReadOnly);
-    this->setStyleSheet(m_qss_dark.readAll());
     show();
 }
 
@@ -129,7 +126,7 @@ tabWidget* MainWindow::addNewTab() {
         connect(m_ui->actionSave_File, &QAction::triggered, this, &MainWindow::saveChanges);
     }
 
-    m_codeEditors_Vector.push_back((new tabWidget()));
+    m_codeEditors_Vector.push_back(new tabWidget());
     m_codeEditors_Tabs->addTab(m_codeEditors_Vector.back(), filePath);
 
     connect(m_codeEditors_Vector.back()->getEditor(), &CodeEditor::updateRequest, this, &MainWindow::setLinesText);
@@ -485,4 +482,15 @@ void MainWindow::setupWrap() {
             }
         }
     }
+}
+
+void MainWindow::setupDark() {
+    QCheckBox* darkBox = m_optionsWindow->getDarkBox();
+
+    if (darkBox->isChecked()) {
+        m_qss_dark.open(QFile::ReadOnly);
+        this->setStyleSheet(m_qss_dark.readAll());
+        m_qss_dark.close();
+    } else
+        this->setStyleSheet("");
 }

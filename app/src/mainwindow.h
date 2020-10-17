@@ -1,45 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include "IncludeHeaders.h"
 
-#include <QMainWindow>
-#include <QLabel>
-#include <QFileDialog>
-#include <QFileSystemModel>
-#include <QFileInfo>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QTabWidget>
-#include <QSplitter>
-#include <QFile>
-#include <QDir>
-#include <QMessageBox>
-#include <QTreeView>
-#include <QModelIndex>
-#include <QAbstractItemModel>
-#include <QShortcut>
-#include <QCheckBox>
-#include <QList>
-
-#include <QPrinter>
-#include <QPrintDialog>
-
-// WARN
-#include <QDebug>
-#include <QInputDialog>
-#include <QMessageBox>
-
-#include <fstream>
-
-// class PlainTextEdit;
 class CodeEditor;
 class SearchWindow;
 class PlainTextEdit;
 class tabWidget;
-class ClickableLabel;
 class ProjectsView;
 
 class OptionsWindow;
@@ -58,62 +25,57 @@ public:
     void setLinesText();
     void setupImages();
 
-    // BUTTONS
     void findBtn();
 
 private slots:
-    void on_actionFile_triggered(); //should open working directory of a file and file;
-    void on_actionDirectory_triggered(); //only opens working directory;
-    void on_actionFileOpened(); //to set text into tab widget;
+    void on_actionFile_triggered();
+    void on_actionDirectory_triggered();
+    void on_actionFileOpened();
 
     void printerDialog();
     void zoomIn();
     void zoomOut();
-    void closeRequestedTab(int index); //closes requested tab;
-    void createNewFile(); //opens new dialog and creates new file;
-    void saveChanges(); //saves all changes done to file;
+    void closeRequestedTab(int index);
+    void createNewFile();
+    void saveChanges();
 
-    bool doubleClick_onTreeView(QString path); //opens item if it is a file on double click;
-    void closeRequestedProject(int index); //closes requested project and all related code editors;
+    bool doubleClick_onTreeView(QString path);
+    void closeRequestedProject(int index);
 
-    //slots for projects area
-    void on_newFile(const QString& path); //create new directory from work tree;
-    void on_newDir(const QString& path); //create new directory from work tree;
-    void on_rename(const QString& path); //rename file/directory from work tree;
-    void on_delete(const QString& path); //delete file/directory from work tree;
+    void on_newFile(const QString& path);
+    void on_newDir(const QString& path);
+    void on_rename(const QString& path);
+    void on_delete(const QString& path);
     void setupWrap();
+    void setupDark();
 
-    //slots for code editor
     void on_paste();
     void on_redo();
     void on_undo();
 
 
 protected:
-    tabWidget* addNewTab(); //adds new tab to QTabWidget
-    bool fileIsOpened(QString newFile); //checks whether the chosen file has already been opened
-    bool dirIsOpened(QString dirName); //checks whether the chosen directory has already been opened
-    void openFile(QString fileName); //opens file and sets it to Text Editor
+    tabWidget* addNewTab();
+    bool fileIsOpened(QString newFile);
+    bool dirIsOpened(QString dirName);
+    void openFile(QString fileName);
 
 private:
     Ui::MainWindow* m_ui;
 
-    //before file was opened or created
     QWidget *m_widget;
-    QVBoxLayout *m_layout; //box for label hints
+    QVBoxLayout *m_layout;
     QPushButton *m_hintButton_CreateFile;
     QPushButton *m_hintButton_OpenFile;
 
-    //working tree sidebar
     QTabWidget* m_workTree_tabWidget{nullptr};
     std::vector<ProjectsView*> m_projectsVector;
 
-    //for work with file
     QString filePath;
     QFileSystemModel* dirmodel;
     QTabWidget* m_codeEditors_Tabs{nullptr};
-    std::vector<tabWidget*> m_codeEditors_Vector; //each new tab editor is added here;
-    QFileDialog* m_newFile_Dialog; //to create new file;
+    std::vector<tabWidget*> m_codeEditors_Vector;
+    QFileDialog* m_newFile_Dialog;
     CodeEditor* m_codeEditor;
     SearchWindow* m_searchWindow;
     OptionsWindow* m_optionsWindow;

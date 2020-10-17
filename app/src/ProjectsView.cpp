@@ -17,14 +17,11 @@ ProjectsView::ProjectsView(QWidget* parent, QFileSystemModel* model, QString dir
 
     connect(m_treeView, &QTreeView::doubleClicked, this, &ProjectsView::on_doubleClick);
     connect(m_treeView, &QTreeView::customContextMenuRequested, this, &ProjectsView::showContextMenu);
-//    connect(newTree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(on_doubleClick(const QModelIndex&)))
     show();
 }
 
 void ProjectsView::showContextMenu(const QPoint& pos) {
-    qDebug() << pos;
     m_point = pos;
-
 
     QMenu myMenu;
     QAction *NewFile = new QAction("New File", this);
@@ -59,11 +56,6 @@ void ProjectsView::on_rename_action() {
 
 void ProjectsView::on_delete_action() {
     emit delete_triggered(m_model->filePath(m_treeView->indexAt(m_point)));
-}
-
-void ProjectsView::testSlot() {
-    qDebug() << "New File clicked";
-//    qDebug() << "connected";
 }
 
 QTreeView*  ProjectsView::getTreeView() {
