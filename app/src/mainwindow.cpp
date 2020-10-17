@@ -383,7 +383,7 @@ void MainWindow::on_rename(const QString &path) {
                                                 info.fileName(), &ok);
         QString path = info.dir().absolutePath() + tr("/") + newName;
         if (ok && !newName.isEmpty()) {
-            if (file.rename(path))
+            if (!file.rename(path))
                 ErrorMessageBox(this, "Failed to rename file:", "This file can't be renamed.");
         }
     }
