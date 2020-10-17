@@ -8,7 +8,6 @@
 #include <QTreeView>
 #include <QFileSystemModel>
 #include <QString>
-#include <QDebug>
 #include <QMenu>
 
 class ProjectsView : public QWidget {
@@ -16,7 +15,6 @@ class ProjectsView : public QWidget {
 
 public:
     ProjectsView(QWidget* parent, QFileSystemModel* model, QString dirname);
-//    ~ProjectsView();
 
     QTreeView*  getTreeView();
 
@@ -34,7 +32,6 @@ public slots:
     void on_newDir_action();
     void on_rename_action();
     void on_delete_action();
-    void testSlot();
 
 private:
     QPoint m_point;

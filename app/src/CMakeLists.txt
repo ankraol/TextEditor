@@ -14,10 +14,9 @@ set(CPPS
     searchwindow.cpp
     LineNumberArea.cpp
     CodeEditor.cpp
-        ClickableLabel.cpp
-        tabWidget.cpp
-        ProjectsView.cpp
-        ErrorMessageBox.cpp
+    tabWidget.cpp
+    ProjectsView.cpp
+    ErrorMessageBox.cpp
     Highlighter.cpp
 )
 

@@ -1,9 +1,6 @@
 #ifndef UTEXT_HIGHLIGHTER_H
 #define UTEXT_HIGHLIGHTER_H
 
-// WARN
-#include <QDebug>
-
 #include <QSyntaxHighlighter>
 #include <QRegularExpression>
 

@@ -17,6 +17,7 @@ public:
     ~OptionsWindow();
 
     QCheckBox* getWrapBox() const;
+    QCheckBox* getDarkBox() const;
 
 private:
     Ui::OptionsWindow *m_ui;
