@@ -1,7 +1,9 @@
 #include "LineNumberArea.h"
 #include "CodeEditor.h"
 
-LineNumberArea::LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor) {}
+LineNumberArea::LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor) {
+    setAttribute(Qt::WA_StyledBackground, true);
+}
 
 QSize LineNumberArea::sizeHint() const {
     return QSize(codeEditor->lineNumberAreaWidth(), 0);
