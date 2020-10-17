@@ -3,6 +3,7 @@
 
 LineNumberArea::LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor) {
     setAttribute(Qt::WA_StyledBackground, true);
+//    setStyleSheet("LineNumberArea { background: green; }");
 }
 
 QSize LineNumberArea::sizeHint() const {

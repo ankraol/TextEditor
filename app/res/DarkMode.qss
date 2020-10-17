@@ -40,3 +40,7 @@ QPlainTextEdit {
     background: #3f3f3f;
 }
 
+QWidget#lineNumberArea {
+    background: #464444;
+}
+

@@ -35,10 +35,6 @@ MainWindow::MainWindow(QWidget* parent)
     m_hintButton_CreateFile->setObjectName("CreateFile_Button");
     m_hintButton_OpenFile->setObjectName("CreateFile_Button");
 
-//    this->setStyleSheet("QPushButton { color: black; font : 14pt 'PT Mono'; font-weight : bold;}\n"
-//                        "QPushButton:hover{ background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}\n"
-//                        "QPushButton:pressed { background: transparent; color: blue; font : 14pt 'PT Mono'; font-weight : bold;}");
-
     // Adding buttons
     m_layout->addWidget(m_hintButton_OpenFile, QSizePolicy::Maximum);
     m_layout->addWidget(m_hintButton_CreateFile, QSizePolicy::Maximum);
@@ -170,23 +166,16 @@ void MainWindow::closeRequestedTab(int index) {
 }
 
 void MainWindow::on_actionFileOpened() {
-    addNewTab();
+    QFile file(filePath);
 
-    std::ifstream fileStream;
-    fileStream.open(filePath.toUtf8().constData(), std::ios::in|std::ios::binary|std::ios::ate);
-    char* memblock;
-    std::streampos size;
-
-    if (fileStream.is_open()) {
-        size = fileStream.tellg();
-        memblock = new char[size];
-        fileStream.seekg(0, std::ios::beg);
-        fileStream.read(memblock, size);
-        fileStream.close();
-        m_codeEditors_Vector.back()->setText(QString::fromUtf8(memblock));
-        delete[] memblock;
-    } else
-        ErrorMessageBox(this, "An error occurred:", "Failed to open a file.");
+    if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
+        ErrorMessageBox msgBox(this, "Can't open file:", "File has access restrictions.");
+    else {
+        addNewTab();
+        QString data;
+        data = file.readAll();
+        m_codeEditors_Vector.back()->setText(data);
+    }
 }
 
 void MainWindow::setLinesText() {
