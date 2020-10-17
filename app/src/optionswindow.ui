@@ -32,6 +32,16 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QCheckBox" name="wrapBox">
+     <property name="text">
+      <string>Wrap</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -42,13 +52,20 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QCheckBox" name="wrapBox">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Wrap</string>
+      <string>Darkmode theme:</string>
      </property>
-     <property name="checked">
-      <bool>true</bool>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="darkBox">
+     <property name="text">
+      <string>Dark</string>
      </property>
     </widget>
    </item>
